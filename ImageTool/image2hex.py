@@ -1,5 +1,13 @@
 #!/usr/bin/env python
 
+##@file image2hex.py
+#
+# Python script to convert any type of image format to a hex file compatible with GxEPD2 library
+# 
+# Script developed by Juan Flores 2022
+# 
+# bmp2hex function is a modified version of the work developed by Robert Gallup (https://github.com/robertgallup/python-bmp2hex)
+
 
 import sys, array, os, textwrap, math, random, argparse
 from PIL import Image
