@@ -3,8 +3,9 @@
 Python script utility to convert images files to hexadecimal format compatible with GxEPD2 library.
 This script change/adapt the image file to 1 bit depth image (AKA black and white), deleting alpha layer (if it have) and tranforming to BMP format.
 Once the image is on a compatible format, it use an adapted version of the Python script BMP2HEX (https://github.com/ZinggJM/GxEPD2) returning an .h file compatible with GxEPD2 library.
+
 Also you can apply geometrical transformation such as down/upscaling and rotate the image.
-Any image format should be compatible, but I've only tried PNG, BMP and JPEG.
+
 
 ## Ussage:
 
@@ -15,6 +16,11 @@ Any image format should be compatible, but I've only tried PNG, BMP and JPEG.
 - @param width      Image width to apply, it can be higher or lower than the original. [optional]
 - @param height     Image height to apply, it can be higher or lower than the original. [optional]
 - @param angle      Image rotation to apply. [optional]
+
+Compatible files: 
+- JPEG
+- BMP
+- PNG
 
 ## Dependencies:
 
