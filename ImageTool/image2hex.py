@@ -1,5 +1,6 @@
 #!/usr/bin/env python
 
+
 import sys, array, os, textwrap, math, random, argparse
 from PIL import Image
 
@@ -11,28 +12,53 @@ def main():
     parser = argparse.ArgumentParser()
     parser.add_argument("infile", help="Image file to convert to 1 bit depth bmp", type=argparse.FileType('r'), nargs='*', default=['-'])
     parser.add_argument("-iw", "--width", help="Change width of the image in pixels", type=int)
-    parser.add_argument("-ih", "--height", help="Change height of the image in pixels", type=int) 
+    parser.add_argument("-ih", "--height", help="Change height of the image in pixels", type=int)
+    parser.add_argument("-ia", "--angle", help="Change the angle of the image in dgrees", type=int)
     args = parser.parse_args()
     infile = args.infile
 
-    #Get File path and name
+    # Get File path and name
     for f in args.infile:
         if f == '-':
             sys.exit("Error: No file attached")
         file_dir = f.name
     file_name = os.path.splitext(file_dir)[0]
     
-    #Image transformation to 1 bit BMP image
     _Image = Image.open(file_dir)
 
+    # Apply (if any) geometrical transformations to the image
+    _Image = img_transform(_Image,args.width,args.height, args.angle)
+
+    # Apply the required transformation to get an 1 bit depth Windows BMP file
     temp_file_name = img2bmp(_Image, file_name)
 
     #Transform into HEX file
     bmp2hex(temp_file_name, _Image.height, _Image.width)
 
     #Delete temporary file
-    #os.remove(temp_file_name)
+    os.remove(temp_file_name)
 
+# Function to transform the image to the required size and rotation
+def img_transform(_Image, width, height, angle):
+    new_width = _Image.width
+    new_height = _Image.height
+    new_angle = 0
+
+    if width:
+        new_width = width
+    if height:
+        new_height = height
+    if angle:
+        new_angle = angle
+
+    size = (new_height, new_width)
+    _Image = _Image.resize(size, Image.BICUBIC, box=None, reducing_gap=None)
+    _Image = _Image.rotate(new_angle)
+
+    return _Image
+
+
+# Function to apply format transformation to obtain a 1 bit depth bmp file
 def img2bmp(_Image, file_name):
     temp_file_name = file_name + "_tmp" + ".bmp"
 
@@ -54,6 +80,7 @@ def img2bmp(_Image, file_name):
 
     return temp_file_name
 
+# Function to transform BMP 1 bit images to hexadcimal compatible with GxEPD2 lib
 def bmp2hex(file_dir, image_height, image_width):
     table_width = 16 * 6 # 16 columns in hex
     size_bytes = 1
