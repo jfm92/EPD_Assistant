@@ -9,7 +9,9 @@ def main():
     temp_file_name = ""
 
     parser = argparse.ArgumentParser()
-    parser.add_argument ("infile", help="The image file to convert", type=argparse.FileType('r'), nargs='*', default=['-'])
+    parser.add_argument("infile", help="Image file to convert to 1 bit depth bmp", type=argparse.FileType('r'), nargs='*', default=['-'])
+    parser.add_argument("-iw", "--width", help="Change width of the image in pixels", type=int)
+    parser.add_argument("-ih", "--height", help="Change height of the image in pixels", type=int) 
     args = parser.parse_args()
     infile = args.infile
 
@@ -19,20 +21,38 @@ def main():
             sys.exit("Error: No file attached")
         file_dir = f.name
     file_name = os.path.splitext(file_dir)[0]
-    temp_file_name = file_name + ".bmp"
-
+    
     #Image transformation to 1 bit BMP image
     _Image = Image.open(file_dir)
-    #TODO: Add posibility to change size
-    blackAndWhiteImage = _Image.convert("1")
-    blackAndWhiteImage.save(temp_file_name)
-    _Image.close()
+
+    temp_file_name = img2bmp(_Image, file_name)
 
     #Transform into HEX file
     bmp2hex(temp_file_name, _Image.height, _Image.width)
 
     #Delete temporary file
     #os.remove(temp_file_name)
+
+def img2bmp(_Image, file_name):
+    temp_file_name = file_name + "_tmp" + ".bmp"
+
+    if _Image.mode == "RGBA":
+        # If we have alpha channel we need to delete it
+        _Image.load()
+        _Image_aux = Image.new("RGB", _Image.size, (255, 255, 255))
+        _Image_aux.paste(_Image, mask=_Image.split()[3])
+        _Image = _Image_aux
+
+    if _Image.mode != "P":
+        # Transform to 8 bit depth image -> It's necessary this middle step?
+        _Image = _Image.convert("P")
+
+    # Change to 1 bit color depth
+    _Image = _Image.convert("1")
+    _Image.save(temp_file_name)
+    _Image.close()
+
+    return temp_file_name
 
 def bmp2hex(file_dir, image_height, image_width):
     table_width = 16 * 6 # 16 columns in hex
